@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tweecord</title>
+</head>
+<body>
+  <h1>Tweet configurator</h1>
+  
+  <form action="/tweet" method="post" enctype="multipart/form-data">
+    <label for="gameName">Game Name :</label>
+    <input type="text" id="gameName" name="gameName" required>
+    <br>
+    
+    <label for="bodyTweet">Body Tweet :</label>
+    <input type="text" id="bodyTweet" name="bodyTweet" required>
+    <br>
+    
+    <label for="hashtagsPlus">Hashtags (optionnals) :</label>
+    <input type="text" id="hashtagsPlus" name="hashtagsPlus">
+    <br>
+    <!-- Add the checkbox for @everyone mention -->
+    <label for="everyoneCheckbox">Mention @everyone:</label>
+    <input type="checkbox" id="everyoneCheckbox" name="everyoneCheckbox">
+    <br>
+    <label for="media">Import Media :</label>
+    <input type="file" id="media" name="media" accept=".mp4, .jpg, .jpeg, .png, .gif" max-size="536870912">
+    <br>
+    
+    <button type="submit">Post Tweet</button>
+  </form>
+</body>
+</html>
