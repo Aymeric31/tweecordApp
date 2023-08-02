@@ -7,16 +7,16 @@ const { TwitterApi } = require('twitter-api-v2');
 const Discord = require('discord.js');
 const app = express();
 const port = 3000;
-const { exec } = require('child_process');
+const { exec } = require('child_process'); // Importez la fonction exec de child_process
 require('dotenv').config();
 
-// WebhookUrl of Discord bot
+// Remplacez 'webhookUrl' par le webhookUrl de votre bot Discord
 const webhookUrl = `https://discord.com/api/webhooks/${process.env.DISCORD_WEBHOOK}`;
 
-// Use cors middleware to allow cross-origin requests
+// Utilisez le middleware cors pour autoriser les requêtes cross-origin
 app.use(cors());
 
-// Configure TwitterApi with your Twitter API keys
+// Configurer TwitterApi avec vos clés d'API Twitter
 const client = new TwitterApi({
   appKey: process.env.TWITTER_APP_KEY,
   appSecret: process.env.TWITTER_APP_SECRET,
@@ -25,28 +25,30 @@ const client = new TwitterApi({
   bearerToken: process.env.TWITTER_BEARER_TOKEN,
 });
 
-// Configuration for multer to handle file uploads
+// const rwClient = client.readWrite;
+
+// Configuration pour multer pour gérer l'upload de fichiers
 const upload = multer({ dest: 'uploads/' });
 
-// Use middleware to parse the body data of a POST request
+// Utilisez le middleware pour analyser les données du corps d'une requête POST
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Set a public folder where static files will be stored (like index.html, CSS, images, etc.)
+// Définissez un dossier public où seront stockés les fichiers statiques (comme index.html, CSS, images, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Route to serve index.html
+// Route pour servir index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', '/index.html'));
 });
 
-// Function to post a message on your Discord server via webhook
+// Fonction pour poster un message sur votre serveur Discord via le webhook
 async function postOnDiscord(tweetId, req) {
   try {
-    // Create a new WebhookClient with the webhook URL
+    // Créez un nouvel objet WebhookClient avec l'URL du webhook
     const webhookClient = new Discord.WebhookClient({ url: webhookUrl });
 
-    // Create the link to the tweet on Twitter
+    // Créez le lien vers le tweet sur Twitter
     const tweetLink = `https://twitter.com/twitter/status/${tweetId}`;
 
     // Construct the message to be sent
@@ -60,7 +62,7 @@ async function postOnDiscord(tweetId, req) {
       message = '@everyone ' + message;
     }
 
-    // Send the message to the Discord webhook
+    // Postez le message sur le webhook Discord
     await webhookClient.send(message);
 
     console.log('Message posté sur Discord avec succès !');
@@ -73,7 +75,7 @@ async function postTweet(req, tweetText) {
   try {
     let tweetId;
     if (!req.file) {
-      // If req.file is undefined (no file imported), post the tweet without media
+      // Si req.file est undefined (pas de fichier importé), on poste le tweet sans média
       const tweet = await client.v2.tweet(tweetText);
       tweetId = tweet.data.id;
     } else {
@@ -106,7 +108,7 @@ async function postTweet(req, tweetText) {
       });
       tweetId = tweet.data.id;
 
-      // Delete the upload file after using it
+      // Supprimez le fichier d'upload après l'avoir utilisé
       fs.unlinkSync(req.file.path);
     }
 
@@ -117,70 +119,91 @@ async function postTweet(req, tweetText) {
   }
 }
 
-// Route to post a tweet with or without media
-app.post('/schedule-tweet', upload.single('media'), async (req, res) => {
-  try {
-    // Get the value of the checkbox (if checked, req.body.delayCheckbox will be set to 'on')
+// Route pour poster un tweet avec ou sans média
+app.post('/tweet', upload.single('media'), async (req, res) => {
+    // Récupérez la valeur de la checkbox (si cochée, req.body.delayCheckbox sera défini à 'on')
     const delayTweet = req.body.delayCheckbox === 'on';
-    const tweetTime = req.body.tweetTime; // Time specified by the user (in "HH:mm" format)
     const gameName = "#" + req.body.gameName;
     const bodyTweet = req.body.bodyTweet;
     const hashtagsPlus = req.body.hashtagsPlus ? "#" + req.body.hashtagsPlus : '';
     const tweetText = `🍕Live ➡ 21h00⏰\nCe soir sur ${gameName}\n${bodyTweet}\n\nhttp://twitch.tv/${process.env.TWITCH_USERNAME}\nhttp://twitch.tv/${process.env.TWITCH_USERNAME}\nhttp://twitch.tv/${process.env.TWITCH_USERNAME}\n\n#twitchfr #pizzamargherita #twitchtv ${hashtagsPlus}`;
-
-    // Check if gameName and bodyTweet fields are present in req.body
+  
+    // Vérifiez que les champs gameName et bodyTweet sont présents dans req.body
     if (!gameName || !bodyTweet) {
       return res.status(400).json({ error: 'Choix manquants' });
     }
     
-    // Check if the user specified a scheduling time
-    if (delayTweet && tweetTime.trim() !== '') {
-      
-      // Parse the specified time as a Date object
-      const [hours, minutes] = tweetTime.split(':');
+    // Si l'utilisateur a choisi de retarder le tweet, calculez le délai et démarrez le setTimeout
+    if (delayTweet) {
+      // Définir l'heure cible à 19h30
       const targetTime = new Date();
-      targetTime.setHours(parseInt(hours));
-      targetTime.setMinutes(parseInt(minutes));
+      targetTime.setHours(19);
+      targetTime.setMinutes(30);
       targetTime.setSeconds(0);
       targetTime.setMilliseconds(0);
 
-      // Calculate the time difference before sending the tweet
-      const timeDifference = targetTime.getTime() - Date.now();
+      // Obtenez l'heure actuelle
+      const currentTime = new Date().getTime();
 
-      // Use the calculated delay to schedule the tweet
+      // Calculez la différence entre l'heure cible et l'heure actuelle en millisecondes.
+      let timeDifference = targetTime.getTime() - currentTime;
+      
+      // Check if the target time is already passed
+      if (timeDifference <= 0) {
+        console.log("L'heure prévue pour le tweet est déjà passée. Le tweet ne sera pas envoyé.");
+        return; // Stop the program from continuing
+      }
+      
+      // const hoursRemaining = Math.floor(timeDifference / (1000 * 60 * 60));
+      // const minutesRemaining = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+      // const secondsRemaining = Math.floor((timeDifference % (1000 * 60)) / 1000);
+      
+      // const timeRemaining = `${hoursRemaining.toString().padStart(2, '0')}:${minutesRemaining.toString().padStart(2, '0')}:${secondsRemaining.toString().padStart(2, '0')}`;
+      
+      const intervalId = setInterval(() => {
+        timeDifference = targetTime.getTime() - new Date().getTime();
+        if (timeDifference <= 0) {
+          clearInterval(intervalId); // Stop the interval when target time is reached
+          console.log('Le tweet sera envoyé dans 00:00:00');
+        } else {
+          const hoursRemaining = Math.floor(timeDifference / (1000 * 60 * 60));
+          const minutesRemaining = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+          const secondsRemaining = Math.floor((timeDifference % (1000 * 60)) / 1000);
+  
+          const timeRemaining = `${hoursRemaining.toString().padStart(2, '0')}:${minutesRemaining.toString().padStart(2, '0')}:${secondsRemaining.toString().padStart(2, '0')}`;
+          console.log(`Le tweet sera envoyé dans ${timeRemaining}`);
+        }
+      }, 1000);      
+
+      // console.log(`Le tweet sera envoyé dans ${timeRemaining}`);
+      // Démarrez le setTimeout avec la fonction d'action et le délai calculé.
       setTimeout(async () => {
         try {
+          // C'est ici que vous pouvez envoyer le tweet et l'envoyer vers Discord à 19h30
           const tweetId = await postTweet(req, tweetText);
           postOnDiscord(tweetId, req);
           console.log(`Tweet envoyé et message posté sur Discord à ${targetTime} !`);
-          return res.status(200).json({ message: 'Le tweet a été posté avec succès !' });
         } catch (error) {
           console.error('Erreur lors de la publication du tweet avec délai :', error);
-          return res.status(500).json({ error: 'Erreur lors de la publication du tweet avec délai.' });
         }
       }, timeDifference);
     } else {
       try {
+        // Si l'utilisateur n'a pas choisi de retarder le tweet, envoyez-le et postez-le sur Discord immédiatement
+        // Appel de la fonction postTweet et récupération de l'ID du tweet
         const tweetId = await postTweet(req, tweetText);
         postOnDiscord(tweetId, req);
         console.log('Tweet envoyé et message posté sur Discord immédiatement !');
-        return res.status(200).json({ message: 'Le tweet a été posté avec succès !' });
       } catch (error) {
         console.error('Erreur lors de la publication du tweet immédiat :', error);
-        return res.status(500).json({ error: 'Erreur lors de la publication du tweet immédiat.' });
       }
     }
-  } catch (error) {
-    console.error('Erreur lors de la gestion de la requête :', error);
-    return res.status(500).json({ error: 'Erreur lors de la gestion de la requête' });
-  }
-});
+  });
 
-// Start the server
+// Démarrer le serveur
 app.listen(port, () => {
   const url = `http://localhost:${port}`;
   console.log(`Serveur démarré sur le port ${port}: ${url}`);
-  // Automatically open the URL in the browser
+  // Ouvrir automatiquement l'URL dans le navigateur
   exec(`start ${url}`);
 });
-

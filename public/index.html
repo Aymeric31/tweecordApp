@@ -8,7 +8,7 @@
 <body>
   <h1>Tweet configurator</h1>
   
-  <form action="/tweet" method="post" enctype="multipart/form-data">
+  <form id="tweetForm" action="/schedule-tweet" method="post" enctype="multipart/form-data">
     <label for="gameName">Game Name :</label>
     <input type="text" id="gameName" name="gameName" required>
     <br>
@@ -27,8 +27,148 @@
     <label for="media">Import Media :</label>
     <input type="file" id="media" name="media" accept=".mp4, .jpg, .jpeg, .png, .gif" max-size="536870912">
     <br>
-    
+    <label for="delayCheckbox">Retarder la publication ?</label>
+    <input type="checkbox" id="delayCheckbox" name="delayCheckbox">
+    <br>
+    <div id="tweetTimeInput" style="display: none;">
+      <label for="tweetTime">Heure d'envoi du tweet :</label>
+      <input type="time" id="tweetTime" name="tweetTime">
+    </div>
+    <br>
     <button type="submit">Post Tweet</button>
   </form>
+  <span id="countdown"></span>
+  <div id="errorMessages" style="color: red;"></div>
+  <div id="messageContainer"></div>
+
+  <script>
+    // Event handler for the "Delay Tweet" checkbox
+    document.addEventListener('DOMContentLoaded', function() {
+      const delayCheckbox = document.getElementById('delayCheckbox');
+      const tweetTimeInput = document.getElementById('tweetTimeInput');
+      delayCheckbox.addEventListener('change', function() {
+        // Show or hide the tweet time input field based on the checkbox state
+        if (this.checked) {
+          tweetTimeInput.style.display = 'block';
+        } else {
+          tweetTimeInput.style.display = 'none';
+        }
+      });
+    });
+// Select the form
+const tweetForm = document.getElementById('tweetForm');
+
+// Event handler for form submission
+tweetForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  // Get the specified time from the user in the "HH:mm" format
+  const tweetTimeInput = document.getElementById('tweetTime').value;
+
+  // Check if the user has specified a scheduling time
+  if (tweetTimeInput.trim() !== '') {
+    // Parse the specified time as a Date object
+    const [hours, minutes] = tweetTimeInput.split(':');
+    const targetTime = new Date();
+    targetTime.setHours(parseInt(hours));
+    targetTime.setMinutes(parseInt(minutes));
+    targetTime.setSeconds(0);
+    targetTime.setMilliseconds(0);
+    
+    // Create a Date object for the current time
+    const currentTimeFormSubmit = new Date();
+
+    // Compare the two Date objects to check if the specified time is in the future
+    if (targetTime <= currentTimeFormSubmit) {
+      // The specified time is in the past or is the same as the current time
+      // Display an error message to the user
+      const errorMessages = document.getElementById('errorMessages');
+      errorMessages.textContent = "L'heure spécifiée est déjà passée ou est la même que l'heure actuelle.";
+      return; // Prevent the form from being submitted
+    }
+    // Start the countdown
+    updateCountdown(targetTime);
+
+    // Disable the form submit button to prevent submissions during the delay
+    const submitButton = document.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+  } else {
+    // If the user hasn't specified a scheduling time, send the form immediately
+    try {
+      await sendTweetForm(tweetForm);
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du tweet immédiat :', error);
+    }
+  }
+});
+
+// Utilisez cette fonction pour afficher un message dans le messageContainer
+function displayMessage(message, isError = false) {
+  const messageContainer = document.getElementById('messageContainer');
+  messageContainer.textContent = message;
+  messageContainer.style.color = isError ? 'red' : 'green';
+}
+
+// Function to send the tweet form immediately
+async function sendTweetForm(form) {
+  try {
+    // Create a FormData object from the form
+    const formData = new FormData(form);
+
+    // Use the fetch function to send the form data to the backend
+    const response = await fetch('/schedule-tweet', {
+      method: 'POST',
+      body: formData,
+    });
+
+    // Check if the request was successful
+    if (response.ok) {
+      // If the response status is 200 (OK), parse the JSON response
+      const data = await response.json();
+      // Return the data to handle it on the frontend
+      displayMessage(data.message, isError = false);
+      console.log('Tweet envoyé et message posté sur Discord !');
+      return data;
+    } else {
+      // If the response status is 500 (Error), parse the JSON response
+      const data = await response.json();
+      // Return the data to handle it on the frontend
+      displayMessage(data.message, isError = true);
+      console.error('Erreur lors de l\'envoi du tweet.');
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi du tweet :', error);
+    throw error;
+  }
+}
+
+// Function to update the countdown every second
+async function updateCountdown(targetTime) {
+    const countdownElement = document.getElementById('countdown');
+
+    // Update the countdown every second
+    const countdownInterval = setInterval(() => {
+      const currentTimeCountdown = new Date().getTime();
+      const timeDifference = targetTime.getTime() - currentTimeCountdown;
+      // Check if the countdown has reached 0
+      if (timeDifference <= 0) {
+        clearInterval(countdownInterval);
+        countdownElement.textContent = 'Temps écoulé !';
+
+        // Once the time is up, send the form immediately
+        const tweetForm = document.getElementById('tweetForm');
+        sendTweetForm(tweetForm);
+      } else {
+        // Calculate the remaining hours, minutes, and seconds
+        const seconds = Math.floor((timeDifference / 1000) % 60);
+        const minutes = Math.floor((timeDifference / 1000 / 60) % 60);
+        const hours = Math.floor((timeDifference / 1000 / 60 / 60) % 24);
+
+        // Display the countdown in the "HH:mm:ss" format
+        countdownElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+    }, 1000); // Update the countdown every 1000 ms (1 second)
+  }
+  </script>
 </body>
 </html>
