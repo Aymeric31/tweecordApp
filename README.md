@@ -29,12 +29,15 @@ These instructions will help you set up and run the project on your local machin
 
 Before you begin, make sure you have the following installed:
 
-`Node.js: You can download it from nodejs.org.`
+- `Node.js: You can download it from nodejs.org.`
+
+- `Discord Webhook: You can create one from your discord server`
 
 ### Creating Developer Applications
 
 Before you can use this tool to post tweets, you need to create developer applications on Twitter and Twitch. Follow these steps:
-Twitter Developer Application
+
+**Twitter Developer Application:**
 
   - Go to the Twitter Developer Portal.
 
@@ -42,7 +45,7 @@ Twitter Developer Application
 
   - Once your Twitter app is created, obtain the API keys and access tokens, and add them to your project's configuration file.
 
-Twitch Developer Application
+**Twitch Developer Application:***
 
   - Go to the Twitch Developer Portal.
 
@@ -67,15 +70,18 @@ Install the project dependencies using npm (Node Package Manager):
 Create an .env in the root project with your personnal token:
 
 ```
-TWITTER_APP_KEY="YOUR SECRET TOKEN"
-TWITTER_APP_SECRET="YOUR SECRET TOKEN"
-TWITTER_ACCESS_TOKEN=="YOUR SECRET TOKEN"
-TWITTER_ACCESS_SECRET="YOUR SECRET TOKEN"
-TWITTER_BEARER_TOKEN=="YOUR SECRET TOKEN"
+1. **Twitter API Credentials:**
+   - `TWITTER_APP_KEY` - Your Twitter Application Key (API Key)
+   - `TWITTER_APP_SECRET` - Your Twitter Application Secret Key (API Secret Key)
+   - `TWITTER_ACCESS_TOKEN` - Your Twitter Access Token
+   - `TWITTER_ACCESS_SECRET` - Your Twitter Access Token Secret
+   - `TWITTER_BEARER_TOKEN` - Your Twitter Bearer Token
 
-DISCORD_WEBHOOK="YOUR SECRET TOKEN"
+2. **Discord Webhook URL:**
+   - `DISCORD_WEBHOOK` - Your Discord Webhook URL for sending messages
 
-**OPTIONNAL** TWITCH_USERNAME="TWITCH USERNAME"
+3. **Optional Twitch Username (if applicable):**
+   - `TWITCH_USERNAME` - Your Twitch Username (if you want to integrate Twitch functionality)
 ```
 
 ## Usage
