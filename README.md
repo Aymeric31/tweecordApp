@@ -1,5 +1,5 @@
 # Tweet Configurator
-Welcome to the Tweet Configurator project! This tool allows you to easily generate tweet and schedule it for posting on Twitter & Discord.
+Welcome to the Tweet Configurator project! This tool allows you to easily configure tweet and schedule it for posting on Twitter & Discord.
 
 ## Table of Contents
 
@@ -9,14 +9,15 @@ Welcome to the Tweet Configurator project! This tool allows you to easily genera
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
-- [Technologies Used](#TechnologiesUsed)
-- [License](#License)
+- [Technologies Used](#technologies-used)
+- [License](#license)
 
 ## Introduction
 Web application that allows users to compose and schedule tweets for posting on both Twitter and Discord.
 
 ## Features
 - Checkbox to schedule tweet ( time selector )
+- Countdown (/s) if the tweet is scheduled
 - Checkbox to mention everyone
 - Input box dedicated for hashtag gamename and more
 - Import media ( gif, image, video supported )
@@ -29,8 +30,6 @@ These instructions will help you set up and run the project on your local machin
 Before you begin, make sure you have the following installed:
 
 `Node.js: You can download it from nodejs.org.`
-
-And you'have created a 
 
 ### Creating Developer Applications
 
@@ -55,11 +54,11 @@ Twitch Developer Application
 
 `Clone the repository to your local machine using Git:`
 
-`git clone https://github.com/yourusername/tweet-generation.git`
+`git clone https://github.com/yourusername/tweecordApp.git`
 
 Navigate to the project directory:
 
-`cd tweet-generation`
+`cd /tweecordApp`
 
 Install the project dependencies using npm (Node Package Manager):
 
@@ -68,36 +67,34 @@ Install the project dependencies using npm (Node Package Manager):
 Create an .env in the root project with your personnal token:
 
 ```
-TWITTER_APP_KEY
-TWITTER_APP_SECRET
-TWITTER_ACCESS_TOKEN
-TWITTER_ACCESS_SECRET
-TWITTER_BEARER_TOKEN
+TWITTER_APP_KEY="YOUR SECRET TOKEN"
+TWITTER_APP_SECRET="YOUR SECRET TOKEN"
+TWITTER_ACCESS_TOKEN=="YOUR SECRET TOKEN"
+TWITTER_ACCESS_SECRET="YOUR SECRET TOKEN"
+TWITTER_BEARER_TOKEN=="YOUR SECRET TOKEN"
 
-DISCORD_WEBHOOK
+DISCORD_WEBHOOK="YOUR SECRET TOKEN"
 
-TWITCH_USERNAME
+**OPTIONNAL** TWITCH_USERNAME="TWITCH USERNAME"
 ```
 
 ## Usage
 
-1. Run the project using the following command:
+1. Run the project using the following command: `npm start`
 
-`npm start`
-
-2. Open your web browser and go to `http://localhost:3000` to access the Tweet Generation web interface.
+2. Open your web browser and go to `http://localhost:3000` to access the Tweet Configurator web interface.
 
 3. Fill in the required information, such as the tweet content, hashtags, and scheduling options.
 
-4. Click the "Generate Tweet" button to create your tweet.
+4. Click the "Post Tweet" button to create your tweet.
 
 You can choose to schedule the tweet for a later time or post it immediately.
 
 ## Technologies Used
 
-Javascript, html, Node.js (express.js)
+Javascript, html/css (bootstrap), Node.js (express.js)
 
 ## License
 
-This project is licensed under the MIT License
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
