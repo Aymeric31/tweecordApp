@@ -25,7 +25,7 @@ Web application that allows users to compose and schedule tweets for posting on 
 ## Getting Started
 These instructions will help you set up and run the project on your local machine.
 
-## Prerequisites
+### Prerequisites
 
 Before you begin, make sure you have the following installed:
 
