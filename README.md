@@ -1,6 +1,10 @@
 # Tweet Configurator
 Welcome to the Tweet Configurator project! This tool allows you to easily configure tweet and schedule it for posting on Twitter & Discord.
 
+<p align="center">
+  <img src="https://i.imgur.com/v0LRAEc.png" alt="App Page">
+</p>
+
 ## Table of Contents
 
 - [Introduction](#introduction)
